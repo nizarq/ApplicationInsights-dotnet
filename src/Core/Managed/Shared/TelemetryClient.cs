@@ -67,6 +67,14 @@
         }
 
         /// <summary>
+        /// Gets a hashed version of the <see cref="InstrumentationKey"/>. 
+        /// </summary>
+        public string InstrumentationKeyHash
+        {
+            get { return this.Context.InstrumentationKeyHash; }
+        }
+
+        /// <summary>
         /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
         /// </summary>
         internal TelemetryConfiguration TelemetryConfiguration
