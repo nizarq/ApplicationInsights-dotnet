@@ -1,11 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
-    using System.Text;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -20,7 +17,6 @@
         private readonly IDictionary<string, string> tags;
 
         private string instrumentationKey;
-        private string instrumentationKeyHash;
 
         private ComponentContext component;
         private DeviceContext device;
@@ -57,30 +53,14 @@
         /// </remarks>
         public string InstrumentationKey
         {
-            get
-            {
-                return this.instrumentationKey ?? string.Empty;
-            }
-
-            set
-            {
-                Property.Set(ref this.instrumentationKey, value);
-                Property.Set(ref this.instrumentationKeyHash, GenerateSHA256Hash(value));
-            }
+            get { return this.instrumentationKey ?? string.Empty; }
+            set { Property.Set(ref this.instrumentationKey, value); }
         }
-
-        /// <summary>
-        /// Gets the hash for the instrumentation key.
-        /// </summary>
-        public string InstrumentationKeyHash
-        {
-            get { return this.instrumentationKeyHash ?? string.Empty; }
-        }
-
+        
         /// <summary>
         /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        public ComponentContext Component
+        public ComponentContext Component 
         {
             get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext(this.Tags)); }
         }
@@ -162,31 +142,6 @@
             {
                 Utils.CopyDictionary(source.tags, this.Tags);
             }
-        }
-
-        /// <summary>
-        /// Computes the SHA256 hash for a given value.
-        /// </summary>
-        /// <param name="value">Value for which the hash is to be computed.</param>
-        /// <returns>Hash string.</returns>
-        private static string GenerateSHA256Hash(string value)
-        {
-            string hashString = string.Empty;
-
-#if CORE_PCL
-            var hasher = PCLCrypto.WinRTCrypto.HashAlgorithmProvider.OpenAlgorithm(PCLCrypto.HashAlgorithm.Sha1);
-            byte[] hash = hasher.HashData(Encoding.UTF8.GetBytes(value));
-#else
-            var sha256 = System.Security.Cryptography.SHA256Managed.Create();
-            byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(value));
-#endif
-
-            foreach (byte x in hash)
-            {
-                hashString += string.Format(CultureInfo.InvariantCulture, "{0:x2}", x);
-            }
-
-            return hashString;
         }
     }
 }
